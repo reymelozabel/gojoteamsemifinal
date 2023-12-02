@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz game of Gojo Team</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <h1>Quiz game</h1>
+        <div class="quiz">
+            <h2 id="Question"></h2>
+            <div class="answerbutton">
+                <button class="btn"></button>
+                
+            </div>
+            <button id="next-btn">Next</button>
+            <div id="timer">Time remaining: 50 seconds</div>
+        </div>
+    </div>
+    <script>
+        let questions = [
+        {
+                question: "Who is the first president in the Philippines?",
+                answers: [
+                    {Text: "Emilio Aguinaldo", correct: true},
+                    {Text: "Corazon Aquino", correct: false},
+                    {Text: "Ferdinand Marcos", correct: false},
+                    {Text: "Georges Pompidou", correct: false},
+                ]
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                answers: [
+                    {Text: "Marie Curie", correct: false},
+                    {Text: "Georges Pompidou", correct: false},
+                    {Text: "Vladimir Putin", correct: false},
+                    {Text: "Leonardo da Vinci", correct: true},
+                ]
+            },
+            {
+                question: "She was known to be the Mother of Katipunan",
+                answers: [
+                    {Text: "Josefa Llanes-Escoda", correct: false},
+                    {Text: "Teodora Alonzo", correct: false},
+                    {Text: "Melchora Aquino", correct: true},
+                    {Text: "Adolf Hitler", correct: false},
+                ]
+            }, 
+            {
+                question: "The first woman president of the Philippines",
+                answers: [
+                    {Text: "Gloria Arroyo maka paak delikado", correct: false},
+                    {Text: "Teodora Alonzo", correct: false},
+                    {Text: "Corazon C. Aquino", correct: true},
+                    {Text: "Marianne Joy Salvador", correct: false},
+                ]
+            },
+            {
+                question: "He was the composer of the Philippine National Anthem",
+                answers: [
+                    {Text: "Jose Rizal", correct: false},
+                    {Text: "Julian Felipe", correct: true},
+                    {Text: "Vladimir Putin", correct: false},
+                    {Text: "Adolf Hitler", correct: false},
+                ]
+            },
+            {
+                question: "Who is the king of the gods in Greek mythology?",
+                answers: [
+                    {Text: "Lebron games", correct: false},
+                    {Text: "Zeus", correct: true},
+                    {Text: "Medusa", correct: false},
+                    {Text: "Adolf Hitler", correct: false},
+                ]
+            },
+            {
+                question: "What animal is known for its ability to change color to match its surroundings?",
+                answers: [
+                    {Text: "chameleon", correct: true},
+                    {Text: "rabbit", correct: false},
+                    {Text: "dog", correct: false},
+                    {Text: "rat", correct: false},
+                ]
+            },
+            {
+                question: "What is HTML one word answer?",
+                answers: [
+                    {Text: "HotdogTypeMeatLoaf", correct: false},
+                    {Text: "Hypertyle Makeup Language", correct: false},
+                    {Text: "HyperText Markup Language", correct: true},
+                    {Text: "How To Make Lumpia", correct: false},
+                ]
+            },
+            {
+                question: "are you handsome",
+                answers: [
+                    {Text: "I Dont think so", correct: true},
+                    {Text: "YES", correct: true},
+                    {Text: "NO", correct: true},
+                    {Text: "YES", correct: true},
+                ]
+            },
+        ];
+
+        let QuestionElement = document.getElementById("Question");
+        let answerButtons = document.querySelector(".answerbutton");
+        let nextButton = document.getElementById("next-btn");
+        let timerDisplay = document.getElementById("timer");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerSeconds = 50;
+        let timer;
+
+        function startQuiz(){
+            currentQuestionIndex = 0;
+            score = 0;
+            startTimer();
+            nextButton.innerHTML = "Next";
+            showQuestion();
+        }
+
+        function showQuestion(){
+            resetState();
+            let currentQuestion = questions[currentQuestionIndex];
+            let questionNo = currentQuestionIndex + 1;
+            QuestionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+            
+            currentQuestion.answers.forEach(answer =>{
+                let button = document.createElement("button");
+                button.innerHTML = answer.Text;
+                button.classList.add("btn");
+                answerButtons.appendChild(button);
+                if(answer.correct){
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+            });
+        }
+
+        function resetState(){
+            nextButton.style.display = "none";
+            while(answerButtons.firstChild){
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e){
+            let selectedBtn = e.target;
+            let isCorrect = selectedBtn.dataset.correct === "true";
+
+            if(isCorrect){
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+
+            Array.from(answerButtons.children).forEach(button => {
+                if(button.dataset.correct === "true"){
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+
+            nextButton.style.display = "block";
+        }
+
+        function showScore(){
+            resetState();
+            QuestionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+            nextButton.innerHTML = "Play Again";
+            nextButton.style.display = "block";
+        }
+
+        function handleNextButton(){
+            currentQuestionIndex++;
+            if(currentQuestionIndex < questions.length){
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        nextButton.addEventListener("click", () => {
+            if(currentQuestionIndex < questions.length){
+                handleNextButton();
+            } else {
+                startQuiz();
+            }
+        });
+
+        function startTimer(){
+            timer = setInterval(() => {
+                if(timerSeconds > 0){
+                    timerSeconds--;
+                    timerDisplay.innerText = `Time remaining: ${timerSeconds} seconds`;
+                }
+                else{
+                    endQuiz();
+                }
+            }, 1000);
+        }
+        function endQuiz(){
+            clearInterval(timer);
+
+            let quizContainer = document.querySelector(".quiz");
+            quizContainer.innerHTML = `<h2>Quiz Completed!</h2><p>Your score: ${score} out of ${questions.length}</p>`;
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>
